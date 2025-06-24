@@ -1,3 +1,4 @@
+-- @ScriptType: LocalScript
 local player = game.Players.LocalPlayer
 local RunService = game:GetService("RunService")
 local ContextActionService = game:GetService("ContextActionService")
@@ -9,9 +10,12 @@ player.CharacterAdded:Connect(function(char)
 	ball = char:WaitForChild("PlayerBall")
 end)
 
-local moveSpeed = 30
+local moveSpeed = 60
+
+print("At movement script")
 
 local function onLeft(actionName, inputState)
+	print("At movement script on left")
 	if inputState == Enum.UserInputState.Begin then	
 		leftValue = 1
 	elseif inputState == Enum.UserInputState.End then
@@ -20,6 +24,7 @@ local function onLeft(actionName, inputState)
 end
 
 local function onRight(actionName, inputState)
+	print("At movement script on right")
 	if inputState == Enum.UserInputState.Begin then
 		rightValue = 1
 	elseif inputState == Enum.UserInputState.End then
@@ -31,7 +36,7 @@ local function onUpdate()
 	if ball then
 		local moveDirection = rightValue - leftValue
 		local velocity = ball.AssemblyLinearVelocity
-		ball.AssemblyLinearVelocity = Vector3.new(moveDirection * moveSpeed, velocity.Y, velocity.Z)
+		ball.AssemblyLinearVelocity = Vector3.new(moveDirection * moveSpeed, velocity.Y, 0)
 	end
 end
 

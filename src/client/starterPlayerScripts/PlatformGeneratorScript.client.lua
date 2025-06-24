@@ -4,9 +4,16 @@ local CollectionService = game:GetService("CollectionService")
 
 local interval = 5
 local lastSpawnTime = 0
+spacingSize = 20
+plaformSize = 500
+screenEdgePadding = 10
+
 leftEdge = nil
+leftEdgeWithPadding = nil
 rightEdge = nil
+rightEdgeWithPadding = nil
 bottomEdge = nil
+
 
 local player = game.Players.LocalPlayer
 
@@ -19,22 +26,29 @@ local function getWorldPositionAtScreenPoint(screenX, screenY, depth)
 	return ray.Origin + ray.Direction.Unit * depth
 end
 
---TODO: update to spawn 2 patforms with spacing in between them
-local function spawnPlatform()
-	local screenX = math.random() * (rightEdge - leftEdge) + leftEdge
+local function spawnPlatforms()
+	local screenXForSpacingMiddle = math.random() * (rightEdgeWithPadding - leftEdgeWithPadding) + leftEdge
 
-	local spawnPos = Vector3.new(screenX, bottomEdge, ball.Position.Z)
-	local platform = Instance.new("Part")
-	platform.Size = Vector3.new(64, 4, 4)
-	platform.BrickColor = BrickColor.new("Bright green")
-	platform.Position = spawnPos
-	platform.Anchored = false
-	platform.CanCollide = true
-	platform.CustomPhysicalProperties = PhysicalProperties.new(100, 0.3, 0.5)
-	platform.Material = Enum.Material.Concrete
-	platform.Name = "PlatformMarker"
-	platform.Parent = workspace
-	CollectionService:AddTag(platform, "PlatformMarker")
+	local spawnPos = Vector3.new(screenXForSpacingMiddle - spacingSize/2 - plaformSize, bottomEdge, ball.Position.Z)
+	local spawnPos2 = Vector3.new(screenXForSpacingMiddle + spacingSize/2, bottomEdge, ball.Position.Z)
+	
+	local function spawnPlatform(spawnPos)
+		local platform = Instance.new("Part")
+		platform.Size = Vector3.new(plaformSize, 5, 10)
+		platform.BrickColor = BrickColor.new("Bright green")
+		platform.Position = spawnPos
+		platform.Anchored = false
+		platform.CanCollide = true
+		platform.CustomPhysicalProperties = PhysicalProperties.new(100, 0.3, 0.5)
+		platform.Material = Enum.Material.Concrete
+		platform.Name = "PlatformMarker"
+		platform.Parent = workspace
+		CollectionService:AddTag(platform, "PlatformMarker")
+		print("spawned platform to:", spawnPos)
+	end
+	spawnPlatform(spawnPos)
+	spawnPlatform(spawnPos2)
+	
 end
 
 local function spawnBottomFloor()
@@ -42,7 +56,7 @@ local function spawnBottomFloor()
 	local worldPosition = camera.CFrame:PointToWorldSpace(viewOffset)
 
 	local wall = Instance.new("Part")
-	wall.Size = Vector3.new(600, 10, 10)
+	wall.Size = Vector3.new(600, 10, 50)
 	wall.Position = worldPosition
 	wall.Anchored = true
 	wall.CanCollide = true
@@ -83,12 +97,14 @@ local function getWorldScreenEdgesAtZ(depthZ)
 end
 
 leftEdge, rightEdge, bottomEdge = getWorldScreenEdgesAtZ(ball.Position.Z)
+leftEdgeWithPadding = leftEdge + screenEdgePadding
+rightEdgeWithPadding = rightEdge + screenEdgePadding
 spawnBottomFloor()
 
 RunService.RenderStepped:Connect(function(dt)
 	local now = tick()
 	if (now - lastSpawnTime >= interval) then
 		lastSpawnTime = now
-		spawnPlatform()
+		spawnPlatforms()
 	end
 end)
