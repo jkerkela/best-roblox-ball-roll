@@ -2,7 +2,8 @@ local RunService = game:GetService("RunService")
 local camera = workspace.CurrentCamera 
 local CollectionService = game:GetService("CollectionService")
 
-local interval = 5
+local baseInterval = 5
+local intervalMin = 1.5
 local lastSpawnTime = 0
 local spacingSize = 20
 local plaformSize = 250
@@ -14,6 +15,8 @@ local leftEdgeWithPadding = nil
 local rightEdge = nil
 local rightEdgeWithPadding = nil
 local bottomEdge = nil
+
+local startTime = tick()
 
 
 local player = game.Players.LocalPlayer
@@ -46,6 +49,7 @@ local function spawnPlatforms()
 		platform.Parent = workspace
 		platform.CollisionGroup = "Platforms"
 		CollectionService:AddTag(platform, "PlatformMarker")
+		print("Spawned a platform to:", spawnPos)
 	end
 	spawnPlatform(spawnPos)
 	spawnPlatform(spawnPos2)
@@ -85,6 +89,7 @@ local function spawnSideWall(xCoords)
 	wall.Name = "ScreenSideWall"
 	wall.Parent = workspace
 	wall.CollisionGroup = "Platforms"
+	print("Spawned a side wall to:", worldPosition)
 end
 
 while camera.CFrame.Position.Magnitude < 1 do
@@ -125,7 +130,9 @@ spawnSideWall(rightEdge + screenEdgeCoordAdjust)
 
 RunService.RenderStepped:Connect(function(dt)
 	local now = tick()
-	if (now - lastSpawnTime >= interval) then
+	local elapsed = now - startTime
+	local newInterval = baseInterval * (0.8 ^ (elapsed / 10))
+	if (now - lastSpawnTime >= math.max(newInterval, intervalMin)) then
 		lastSpawnTime = now
 		spawnPlatforms()
 	end
