@@ -2,7 +2,7 @@ local RunService = game:GetService("RunService")
 local player = game.Players.LocalPlayer
 local camera = workspace.CurrentCamera
 
-local speed = 15 -- TODO add difficulty increase over time
+local speed = 5 -- TODO add difficulty increase over time
 
 RunService.RenderStepped:Connect(function(dt)
 	for _, obj in pairs(workspace:GetChildren()) do

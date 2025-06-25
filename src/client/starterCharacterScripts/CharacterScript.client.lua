@@ -18,6 +18,7 @@ ball.Anchored = false
 ball.CanCollide = true
 ball.BrickColor = BrickColor.new("Really black")
 ball.Material = Enum.Material.SmoothPlastic
-
 ball.Parent = char
+ball.CollisionGroup = "Player"
+
 

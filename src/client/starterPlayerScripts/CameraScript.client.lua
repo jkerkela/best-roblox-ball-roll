@@ -7,7 +7,8 @@ local char = player.Character or player.CharacterAdded:Wait()
 local ball = char:WaitForChild("PlayerBall")
 
 local ballPos = ball.Position
-local camPos = ballPos + Vector3.new(0, 0, 100)
+local camPos = ballPos + Vector3.new(0, 0, 200)
 local lookDir = Vector3.new(0, 0, -1)
 
 camera.CFrame = CFrame.new(camPos, camPos + lookDir)
+camera.FieldOfView = 30
