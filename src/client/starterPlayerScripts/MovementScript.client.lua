@@ -1,4 +1,5 @@
 -- @ScriptType: LocalScript
+local GameState = require(game.ReplicatedStorage.Shared:WaitForChild("GameState"))
 local player = game.Players.LocalPlayer
 local RunService = game:GetService("RunService")
 local ContextActionService = game:GetService("ContextActionService")
@@ -11,8 +12,6 @@ player.CharacterAdded:Connect(function(char)
 end)
 
 local moveSpeed = 60
-
-print("At movement script")
 
 local function onLeft(actionName, inputState)
 	if inputState == Enum.UserInputState.Begin then	
@@ -31,14 +30,16 @@ local function onRight(actionName, inputState)
 end
 
 local function onUpdate()
-	if ball then
+	if not GameState.menuOpen and ball then
+		ball.Anchored = false
 		local moveDirection = rightValue - leftValue
 		local velocity = ball.AssemblyLinearVelocity
 		ball.AssemblyLinearVelocity = Vector3.new(moveDirection * moveSpeed, velocity.Y, 0)
+	elseif ball then
+		ball.Anchored = true
 	end
 end
 
 RunService:BindToRenderStep("Control", Enum.RenderPriority.Input.Value, onUpdate)
-
 ContextActionService:BindAction("Left", onLeft, true, "a", Enum.KeyCode.Left, Enum.KeyCode.DPadLeft)
 ContextActionService:BindAction("Right", onRight, true, "d", Enum.KeyCode.Right, Enum.KeyCode.DPadRight)

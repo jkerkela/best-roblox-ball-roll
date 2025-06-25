@@ -1,3 +1,4 @@
+local GameState = require(game.ReplicatedStorage.Shared:WaitForChild("GameState"))
 local RunService = game:GetService("RunService")
 local camera = workspace.CurrentCamera 
 local CollectionService = game:GetService("CollectionService")
@@ -15,9 +16,6 @@ local leftEdgeWithPadding = nil
 local rightEdge = nil
 local rightEdgeWithPadding = nil
 local bottomEdge = nil
-
-local startTime = tick()
-
 
 local player = game.Players.LocalPlayer
 
@@ -129,11 +127,13 @@ spawnSideWall(leftEdge - screenEdgeCoordAdjust)
 spawnSideWall(rightEdge + screenEdgeCoordAdjust)
 
 RunService.RenderStepped:Connect(function(dt)
-	local now = tick()
-	local elapsed = now - startTime
-	local newInterval = baseInterval * (0.8 ^ (elapsed / 10))
-	if (now - lastSpawnTime >= math.max(newInterval, intervalMin)) then
-		lastSpawnTime = now
-		spawnPlatforms()
+	if not GameState.menuOpen then
+		local now = tick()
+		local elapsed = now - GameState.totalPauseTime - GameState.startTime
+		local newInterval = baseInterval * (0.8 ^ (elapsed / 10))
+		if (now - lastSpawnTime >= math.max(newInterval, intervalMin)) then
+			lastSpawnTime = now
+			spawnPlatforms()
+		end
 	end
 end)
