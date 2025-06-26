@@ -13,7 +13,8 @@ local ball = Instance.new("Part")
 ball.Name = "PlayerBall"
 ball.Shape = Enum.PartType.Ball
 ball.Size = Vector3.new(4,4,4)
-ball.Position = char:GetPivot().Position + Vector3.new(0, 10, 0)
+--TODO: get middle of the screen dynamically
+ball.Position = Vector3.new(0, 113, 0)
 ball.Anchored = false
 ball.CanCollide = true
 ball.BrickColor = BrickColor.new("Really black")

@@ -11,7 +11,7 @@ player.CharacterAdded:Connect(function(char)
 	ball = char:WaitForChild("PlayerBall")
 end)
 
-local moveSpeed = 60
+local moveSpeed = 150
 
 local function onLeft(actionName, inputState)
 	if inputState == Enum.UserInputState.Begin then	

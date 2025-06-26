@@ -3,7 +3,7 @@ local RunService = game:GetService("RunService")
 local camera = workspace.CurrentCamera 
 local CollectionService = game:GetService("CollectionService")
 
-local baseInterval = 5
+local baseInterval = 3.0
 local intervalMin = 1.5
 local lastSpawnTime = 0
 local spacingSize = 20
@@ -41,8 +41,8 @@ local function spawnPlatforms()
 		platform.Position = spawnPos
 		platform.Anchored = false
 		platform.CanCollide = true
-		platform.CustomPhysicalProperties = PhysicalProperties.new(100, 0.3, 0.5)
-		platform.Material = Enum.Material.Concrete
+		platform.CustomPhysicalProperties = PhysicalProperties.new(100, 0.3, 0.1)
+		platform.Material = Enum.Material.Ground
 		platform.Name = "PlatformMarker"
 		platform.Parent = workspace
 		platform.CollisionGroup = "Platforms"
@@ -87,7 +87,7 @@ local function spawnSideWall(xCoords)
 	wall.Name = "ScreenSideWall"
 	wall.Parent = workspace
 	wall.CollisionGroup = "Platforms"
-
+	print("Spawned a side wall to:", worldPosition)
 end
 
 while camera.CFrame.Position.Magnitude < 1 do
