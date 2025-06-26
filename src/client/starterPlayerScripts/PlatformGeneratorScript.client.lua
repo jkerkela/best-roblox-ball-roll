@@ -47,7 +47,6 @@ local function spawnPlatforms()
 		platform.Parent = workspace
 		platform.CollisionGroup = "Platforms"
 		CollectionService:AddTag(platform, "PlatformMarker")
-		print("Spawned a platform to:", spawnPos)
 	end
 	spawnPlatform(spawnPos)
 	spawnPlatform(spawnPos2)
@@ -72,6 +71,29 @@ local function spawnBottomFloor()
 	wall.CollisionGroup = "Platforms"
 end
 
+local function spawnCeiling()
+	local viewOffset = Vector3.new(0, 60, -200) 
+	local worldPosition = camera.CFrame:PointToWorldSpace(viewOffset)
+
+	local wall = Instance.new("Part")
+	wall.Size = Vector3.new(600, 10, 10)
+	wall.Position = worldPosition
+	wall.Anchored = true
+	wall.CanCollide = true
+	wall.BrickColor = BrickColor.new("Bright red") 
+	wall.Material = Enum.Material.Neon
+	wall.Transparency = 0 -- make visible if needed for debug
+	wall.Name = "ScreenCeiling"
+	wall.Parent = workspace
+	wall.CollisionGroup = "Platforms"
+	
+	wall.Touched:Connect(function(otherPart)
+		if otherPart.Name == "PlayerBall" then
+			GameState.EndGame(player)
+		end
+	end)
+end
+
 local function spawnSideWall(xCoords)
 	local viewOffset = Vector3.new(xCoords, bottomEdge, -200) 
 	local worldPosition = camera.CFrame:PointToWorldSpace(viewOffset)
@@ -87,7 +109,6 @@ local function spawnSideWall(xCoords)
 	wall.Name = "ScreenSideWall"
 	wall.Parent = workspace
 	wall.CollisionGroup = "Platforms"
-	print("Spawned a side wall to:", worldPosition)
 end
 
 while camera.CFrame.Position.Magnitude < 1 do
@@ -123,6 +144,7 @@ leftEdge, rightEdge, bottomEdge = getWorldScreenEdgesAtZ(ball.Position.Z)
 leftEdgeWithPadding = leftEdge + screenEdgePadding 
 rightEdgeWithPadding = rightEdge - screenEdgePadding
 spawnBottomFloor()
+spawnCeiling()
 spawnSideWall(leftEdge - screenEdgeCoordAdjust)
 spawnSideWall(rightEdge + screenEdgeCoordAdjust)
 

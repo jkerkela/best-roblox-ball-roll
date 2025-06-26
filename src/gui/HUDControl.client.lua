@@ -6,8 +6,6 @@ local menuButton = hudFrame:WaitForChild("MenuButton")
 
 menuButton.MouseButton1Click:Connect(function()
 	if not GameState.menuOpen then
-		GameState.ToggleMenu()
-		player.PlayerGui.MainMenu.Enabled = true
-		menuButton.Visible = false
+		GameState.PauseGame(player)
 	end
 end)

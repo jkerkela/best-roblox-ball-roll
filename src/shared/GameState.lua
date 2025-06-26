@@ -35,28 +35,56 @@ function GameState.StartGame(player)
 	clearSpawnedPlatforms()
 	game.ReplicatedStorage:WaitForChild("ResetCharacter"):FireServer()
 	player.CharacterAdded:Wait()
+	GameState.CloseMenu(player)
 	GameState.startTime = tick()
 	GameState.score = 0
 	GameState.started = true
 	startPointsCalculation()	
 end
 
-function GameState.EndGame()
+function GameState.PauseGame(player)
+	GameState.OpenMenu(player)
+end
+
+function GameState.EndGame(player)
+	print("At gamestate end game")
+	GameState.started = false
+	local gameInfo = game.Players.LocalPlayer.PlayerGui.MainMenu.Frame.GameInfo
+	gameInfo.Text = "Game over! Final score: " .. math.floor(GameState.score)
+	GameState.OpenMenu(player)
+end
+
+function GameState.QuitGame()
 	GameState.started = false
 	GameState.score = 0
-	print("AT GameState.EndGame")
 	game.ReplicatedStorage:WaitForChild("QuitRequest"):FireServer("Player clicked quit")
 end
 
-function GameState.ToggleMenu()
-	GameState.menuOpen = not GameState.menuOpen
-	if GameState.menuOpen then
+function GameState.OpenMenu(player)
+	if not GameState.menuOpen then
+		GameState.menuOpen = true
 		GameState.menuOpenedAt = tick()
-	else
+		player.PlayerGui.MainMenu.Enabled = true
+		player.PlayerGui.HUDOverlay.Frame.MenuButton.Visible = false
+		if GameState.started then 
+			player.PlayerGui.MainMenu.Frame.ReturnGameButton.Visible = true
+			local gameInfo = game.Players.LocalPlayer.PlayerGui.MainMenu.Frame.GameInfo
+			gameInfo.Text = "Game paused, continue game by clicking \"Return game\""
+		else
+			player.PlayerGui.MainMenu.Frame.ReturnGameButton.Visible = false
+		end
+	end
+end
+
+function GameState.CloseMenu(player)
+	if GameState.menuOpen then
+		GameState.menuOpen = false
 		if GameState.menuOpenedAt then
 			GameState.totalPauseTime += tick() - GameState.menuOpenedAt
 			GameState.menuOpenedAt = nil
 		end
+		player.PlayerGui.MainMenu.Enabled = false
+		player.PlayerGui.HUDOverlay.Frame.MenuButton.Visible = true
 	end
 end
 
