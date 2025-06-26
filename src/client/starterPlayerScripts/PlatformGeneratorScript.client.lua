@@ -87,7 +87,7 @@ local function spawnSideWall(xCoords)
 	wall.Name = "ScreenSideWall"
 	wall.Parent = workspace
 	wall.CollisionGroup = "Platforms"
-	print("Spawned a side wall to:", worldPosition)
+
 end
 
 while camera.CFrame.Position.Magnitude < 1 do

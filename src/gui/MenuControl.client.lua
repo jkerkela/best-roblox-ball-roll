@@ -14,12 +14,14 @@ newGameButton.MouseButton1Click:Connect(function()
 	GameState.StartGame(player)
 	GameState.ToggleMenu()
 	mainMenu.Enabled = false
+	player.PlayerGui.HUDOverlay.Frame.MenuButton.Visible = true
 end)
 
 ReturnGameButton.MouseButton1Click:Connect(function()
 	if GameState.started then
 		GameState.ToggleMenu()
 		mainMenu.Enabled = false
+		player.PlayerGui.HUDOverlay.Frame.MenuButton.Visible = true
 	end
 end)
 
@@ -31,5 +33,6 @@ UserInputService.InputBegan:Connect(function(input, gameProcessed)
 	if input.KeyCode == Enum.KeyCode.Space and not gameProcessed and not mainMenu.Enabled then
 		GameState.ToggleMenu()
 		mainMenu.Enabled = true
+		player.PlayerGui.HUDOverlay.Frame.MenuButton.Visible = false
 	end
 end)
