@@ -47,8 +47,8 @@ function GameState.PauseGame(player)
 end
 
 function GameState.EndGame(player)
-	print("At gamestate end game")
 	GameState.started = false
+	GameState.totalPauseTime = 0
 	local gameInfo = game.Players.LocalPlayer.PlayerGui.MainMenu.Frame.GameInfo
 	gameInfo.Text = "Game over! Final score: " .. math.floor(GameState.score)
 	GameState.OpenMenu(player)
@@ -56,14 +56,16 @@ end
 
 function GameState.QuitGame()
 	GameState.started = false
-	GameState.score = 0
+	GameState.totalPauseTime = 0
 	game.ReplicatedStorage:WaitForChild("QuitRequest"):FireServer("Player clicked quit")
 end
 
 function GameState.OpenMenu(player)
 	if not GameState.menuOpen then
 		GameState.menuOpen = true
-		GameState.menuOpenedAt = tick()
+		if GameState.started then
+			GameState.menuOpenedAt = tick()
+		end
 		player.PlayerGui.MainMenu.Enabled = true
 		player.PlayerGui.HUDOverlay.Frame.MenuButton.Visible = false
 		if GameState.started then 
@@ -79,13 +81,23 @@ end
 function GameState.CloseMenu(player)
 	if GameState.menuOpen then
 		GameState.menuOpen = false
-		if GameState.menuOpenedAt then
+		if GameState.started and GameState.menuOpenedAt then
 			GameState.totalPauseTime += tick() - GameState.menuOpenedAt
 			GameState.menuOpenedAt = nil
 		end
 		player.PlayerGui.MainMenu.Enabled = false
 		player.PlayerGui.HUDOverlay.Frame.MenuButton.Visible = true
 	end
+end
+
+function GameState.OpenLeaderboard(player)
+	player.PlayerGui.MainMenu.Enabled = false
+	player.PlayerGui.MainMenu.LeaderboardFrame.Visible = true
+end
+
+function GameState.CloseLeaderboard(player)
+	player.PlayerGui.MainMenu.LeaderboardFrame.Visible = false
+	player.PlayerGui.MainMenu.Enabled = true
 end
 
 return GameState
