@@ -38,6 +38,7 @@ function GameState.StartGame(player)
 	GameState.CloseMenu(player)
 	GameState.startTime = tick()
 	GameState.score = 0
+	GameState.totalPauseTime = 0
 	GameState.started = true
 	startPointsCalculation()	
 end
@@ -48,9 +49,10 @@ end
 
 function GameState.EndGame(player)
 	GameState.started = false
-	GameState.totalPauseTime = 0
 	local gameInfo = game.Players.LocalPlayer.PlayerGui.MainMenu.Frame.GameInfo
-	gameInfo.Text = "Game over! Final score: " .. math.floor(GameState.score)
+	local score = math.floor(GameState.score)
+	gameInfo.Text = "Game over! Final score: " .. score
+	game.ReplicatedStorage:WaitForChild("PublishScore"):FireServer(score)
 	GameState.OpenMenu(player)
 end
 
@@ -91,13 +93,13 @@ function GameState.CloseMenu(player)
 end
 
 function GameState.OpenLeaderboard(player)
-	player.PlayerGui.MainMenu.Enabled = false
 	player.PlayerGui.MainMenu.LeaderboardFrame.Visible = true
+	player.PlayerGui.MainMenu.Frame.Visible = false
 end
 
 function GameState.CloseLeaderboard(player)
+	player.PlayerGui.MainMenu.Frame.Visible = true
 	player.PlayerGui.MainMenu.LeaderboardFrame.Visible = false
-	player.PlayerGui.MainMenu.Enabled = true
 end
 
 return GameState

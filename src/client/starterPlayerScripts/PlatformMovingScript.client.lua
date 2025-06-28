@@ -3,8 +3,8 @@ local RunService = game:GetService("RunService")
 local player = game.Players.LocalPlayer
 local camera = workspace.CurrentCamera
 
-local baseSpeed = 20
-local speedMax = 80
+local baseSpeed = 30
+local speedMax = 90
 local speedIncreaseMultiplier = 1.20
 
 RunService.RenderStepped:Connect(function(dt)

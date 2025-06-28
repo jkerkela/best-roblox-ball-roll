@@ -3,19 +3,21 @@ local RunService = game:GetService("RunService")
 local camera = workspace.CurrentCamera 
 local CollectionService = game:GetService("CollectionService")
 
-local baseInterval = 3.0
-local intervalMin = 1.5
+local baseInterval = 1
 local lastSpawnTime = 0
 local spacingSize = 20
-local plaformSize = 250
-local screenEdgePadding = 50
-local screenEdgeCoordAdjust = 40 -- TODO: we seem to get edges that are not actually edges
+local plaformSize = 200
+local screenEdgePadding = 90
+local screenEdgeCoordAdjust = 30 -- TODO: in roblox studio, we seem to get edges that are not actually edges
 
 local leftEdge = nil
 local leftEdgeWithPadding = nil
 local rightEdge = nil
 local rightEdgeWithPadding = nil
 local bottomEdge = nil
+local topEdge = nil
+local adjustPlatformSpawn = false
+local spawnTimeAdjust = 0
 
 local player = game.Players.LocalPlayer
 
@@ -29,11 +31,10 @@ local function getWorldPositionAtScreenPoint(screenX, screenY, depth)
 end
 
 local function spawnPlatforms()
-	local screenXForSpacingMiddle = math.random() * (rightEdgeWithPadding - leftEdgeWithPadding) + leftEdgeWithPadding
+	local screenXForSpacingMiddle = math.random(spacingSize, 180)
 
 	local spawnPos = Vector3.new(screenXForSpacingMiddle - spacingSize/2 - plaformSize, bottomEdge, ball.Position.Z)
 	local spawnPos2 = Vector3.new(screenXForSpacingMiddle + spacingSize/2, bottomEdge, ball.Position.Z)
-
 	local function spawnPlatform(spawnPos)
 		local platform = Instance.new("Part")
 		platform.Size = Vector3.new(plaformSize, 5, 10)
@@ -46,7 +47,7 @@ local function spawnPlatforms()
 		platform.Name = "PlatformMarker"
 		platform.Parent = workspace
 		platform.CollisionGroup = "Platforms"
-		CollectionService:AddTag(platform, "PlatformMarker")
+		CollectionService:AddTag(platform, "AutoClean")
 	end
 	spawnPlatform(spawnPos)
 	spawnPlatform(spawnPos2)
@@ -54,12 +55,10 @@ local function spawnPlatforms()
 end
 
 local function spawnBottomFloor()
-	--TODO: determine bottom floor dynamically
-	local viewOffset = Vector3.new(0, -60, -200) 
-	local worldPosition = camera.CFrame:PointToWorldSpace(viewOffset)
+	local worldPosition = Vector3.new(0, bottomEdge, ball.Position.Z)
 
 	local wall = Instance.new("Part")
-	wall.Size = Vector3.new(600, 10, 10)
+	wall.Size = Vector3.new(600, 1, 10)
 	wall.Position = worldPosition
 	wall.Anchored = true
 	wall.CanCollide = true
@@ -72,17 +71,16 @@ local function spawnBottomFloor()
 end
 
 local function spawnCeiling()
-	local viewOffset = Vector3.new(0, 60, -200) 
-	local worldPosition = camera.CFrame:PointToWorldSpace(viewOffset)
+	local worldPosition = Vector3.new(0, topEdge, ball.Position.Z)
 
 	local wall = Instance.new("Part")
-	wall.Size = Vector3.new(600, 10, 10)
+	wall.Size = Vector3.new(600, 1, 10)
 	wall.Position = worldPosition
 	wall.Anchored = true
 	wall.CanCollide = true
 	wall.BrickColor = BrickColor.new("Bright red") 
 	wall.Material = Enum.Material.Neon
-	wall.Transparency = 0 -- make visible if needed for debug
+	wall.Transparency = 1 -- make visible if needed for debug
 	wall.Name = "ScreenCeiling"
 	wall.Parent = workspace
 	wall.CollisionGroup = "Platforms"
@@ -95,11 +93,10 @@ local function spawnCeiling()
 end
 
 local function spawnSideWall(xCoords)
-	local viewOffset = Vector3.new(xCoords, bottomEdge, -200) 
-	local worldPosition = camera.CFrame:PointToWorldSpace(viewOffset)
+	local worldPosition = Vector3.new(xCoords, bottomEdge, ball.Position.Z) 
 
 	local wall = Instance.new("Part")
-	wall.Size = Vector3.new(10, 600, 10)
+	wall.Size = Vector3.new(1, 600, 10)
 	wall.Position = worldPosition
 	wall.Anchored = true
 	wall.CanCollide = true
@@ -135,27 +132,39 @@ local function getWorldScreenEdgesAtZ(depthZ)
 
 	local leftX = screenXToWorldX(0)
 	local rightX = screenXToWorldX(camera.ViewportSize.X)
+	local topY = screenYToWorldY(0)
 	local bottomY = screenYToWorldY(camera.ViewportSize.Y)
 
-	return leftX, rightX, bottomY
+	return leftX, rightX, bottomY, topY
 end
 
-leftEdge, rightEdge, bottomEdge = getWorldScreenEdgesAtZ(ball.Position.Z)
+leftEdge, rightEdge, bottomEdge, topEdge = getWorldScreenEdgesAtZ(ball.Position.Z)
 leftEdgeWithPadding = leftEdge + screenEdgePadding 
 rightEdgeWithPadding = rightEdge - screenEdgePadding
 spawnBottomFloor()
 spawnCeiling()
-spawnSideWall(leftEdge - screenEdgeCoordAdjust)
-spawnSideWall(rightEdge + screenEdgeCoordAdjust)
+spawnSideWall(leftEdge)
+spawnSideWall(rightEdge)
 
 RunService.RenderStepped:Connect(function(dt)
 	if not GameState.menuOpen then
 		local now = tick()
-		local elapsed = now - GameState.totalPauseTime - GameState.startTime
-		local newInterval = baseInterval * (0.8 ^ (elapsed / 10))
-		if (now - lastSpawnTime >= math.max(newInterval, intervalMin)) then
+		if adjustPlatformSpawn and spawnTimeAdjust == 0 then
+			spawnTimeAdjust = GameState.lastPauseTime
+		end
+		if ((now - lastSpawnTime) >= (baseInterval + spawnTimeAdjust)) then
+			adjustPlatformSpawn = false
+			spawnTimeAdjust = 0
 			lastSpawnTime = now
 			spawnPlatforms()
 		end
+	else
+		adjustPlatformSpawn = true
+	end
+end)
+
+player.CharacterAdded:Connect(function()
+	for _, part in ipairs(CollectionService:GetTagged("AutoClean")) do
+		part:Destroy()
 	end
 end)
