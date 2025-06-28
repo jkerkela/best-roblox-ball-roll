@@ -9,11 +9,23 @@ local ReturnGameButton = menuActionsFrame:WaitForChild("ReturnGameButton")
 local BackgroundFrameFrame = player.PlayerGui:WaitForChild("MainMenu").BackgroundFrame
 local LeaderboardButton = BackgroundFrameFrame:WaitForChild("LeaderboardButton")
 
+local ServerTransferFrame = player.PlayerGui:WaitForChild("MainMenu").ServerTransferFrame
+
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local getLeaderboardData = ReplicatedStorage:WaitForChild("GetLeaderboardData")
 
 local leaderboardFrame = player.PlayerGui:WaitForChild("MainMenu").LeaderboardFrame
 local mainMenuButton = leaderboardFrame:WaitForChild("MainMenuButton")
+
+
+if GameState.gameServerReady then
+	ServerTransferFrame.Visible = false
+	menuActionsFrame.Visible = true
+else
+	ServerTransferFrame.Visible = true
+	menuActionsFrame.Visible = false
+end
+
 
 local function updateLeaderboard()
 	local data = getLeaderboardData:InvokeServer()

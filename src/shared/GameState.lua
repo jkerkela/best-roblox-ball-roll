@@ -7,7 +7,9 @@ local GameState = {
 	started = false,
 	menuOpen = true,
 	menuOpenedAt = nil,
-	totalPauseTime = 0
+	totalPauseTime = 0,
+	lastPauseTime = 0,
+	gameServerReady = false
 }
 
 local function startPointsCalculation()
@@ -84,8 +86,8 @@ function GameState.CloseMenu(player)
 	if GameState.menuOpen then
 		GameState.menuOpen = false
 		if GameState.started and GameState.menuOpenedAt then
-			GameState.totalPauseTime += tick() - GameState.menuOpenedAt
-			GameState.menuOpenedAt = nil
+			GameState.lastPauseTime = tick() - GameState.menuOpenedAt
+			GameState.totalPauseTime += GameState.lastPauseTime
 		end
 		player.PlayerGui.MainMenu.Enabled = false
 		player.PlayerGui.HUDOverlay.Frame.MenuButton.Visible = true
